@@ -60,7 +60,7 @@ def main():
     vertices = int(input("Ingrese el número de vértices: "))
     g = Grafo(vertices)
 
-    print("Ingrese el grafo como una matriz de adyacencia (fila por fila):")
+    print("Ingrese el grafo como una matriz de adyacencia (fila por fila) separado nodo por nodo por un espacio:")
     for i in range(vertices):
         fila = list(map(int, input().split()))
         g.grafo[i] = fila
