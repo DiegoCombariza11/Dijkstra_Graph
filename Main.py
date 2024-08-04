@@ -4,10 +4,16 @@ class Grafo:
     def __init__(self, vertices):
         self.V = vertices
         self.grafo = [[0 for columna in range(vertices)] for fila in range(vertices)]
-    
+
     def imprimir_matriz_adyacencia(self):
+        print("Matriz de adyacencia:")
         for fila in self.grafo:
             print(" ".join(map(str, fila)))
+
+    def imprimir_lista_nodos(self):
+        print("Lista de nodos con sus índices:")
+        for i in range(self.V):
+            print(f"Nodo {i}: {i}")
 
     def distancia_minima(self, dist, spt_set):
         minimo = sys.maxsize
@@ -34,8 +40,8 @@ class Grafo:
 
             for v in range(self.V):
                 if self.grafo[u][v] > 0 and not spt_set[v]:
-                    if dist[v] > dist[u] + 1:  # Distancia es siempre 1 si hay una conexión
-                        dist[v] = dist[u] + 1
+                    if dist[v] > dist[u] + self.grafo[u][v]:
+                        dist[v] = dist[u] + self.grafo[u][v]
                         padres[v] = u
 
         return dist, padres
@@ -50,27 +56,49 @@ class Grafo:
             print()
 
     def imprimir_camino(self, padres, j):
-        if padres[j] == -1:
-            print(j, end=" ")
-            return
-        self.imprimir_camino(padres, padres[j])
-        print(j, end=" ")
+        camino = []
+        while j != -1:
+            camino.append(j)
+            j = padres[j]
+        camino.reverse()
+        print(" -> ".join(map(str, camino)))
 
 def main():
-    vertices = int(input("Ingrese el número de vértices: "))
+    try:
+        vertices = int(input("Ingrese el tamaño 'n'  de la matriz de adyacencia (nxn): "))
+        if vertices <= 0:
+            raise ValueError("El tamaño de la matriz debe ser mayor que 0.")
+    except ValueError as e:
+        print(e)
+        return
+
     g = Grafo(vertices)
 
     print("Ingrese el grafo como una matriz de adyacencia (fila por fila) separado nodo por nodo por un espacio:")
     for i in range(vertices):
-        fila = list(map(int, input().split()))
-        g.grafo[i] = fila
+        while True:
+            try:
+                fila = list(map(int, input(f"Fila {i + 1}: ").split()))
+                if len(fila) != vertices:
+                    raise ValueError(f"Debe ingresar exactamente {vertices} valores.")
+                g.grafo[i] = fila
+                break
+            except ValueError as e:
+                print(e)
 
-    print("Matriz de adyacencia:")
+
     g.imprimir_matriz_adyacencia()
+    g.imprimir_lista_nodos()
 
-    src = int(input("Ingrese el vértice de origen (de 0 a {}): ".format(vertices - 1)))
-    dest = int(input("Ingrese el vértice de destino (de 0 a {}): ".format(vertices - 1)))
-    
+    try:
+        src = int(input(f"Ingrese el índice del vértice de origen (de 0 a {vertices - 1}): "))
+        dest = int(input(f"Ingrese el índice del vértice de destino (de 0 a {vertices - 1}): "))
+        if src < 0 or src >= vertices or dest < 0 or dest >= vertices:
+            raise ValueError("El vértice de origen y destino deben estar dentro del rango válido.")
+    except ValueError as e:
+        print(e)
+        return
+
     dist, padres = g.dijkstra(src)
     g.imprimir_solucion(dist, padres, src, dest)
 
